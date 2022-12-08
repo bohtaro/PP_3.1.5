@@ -10,15 +10,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.kata.spring.boot_security_rest.service.UserServiceImpl;
+import ru.kata.spring.boot_security_rest.service.UserService;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @Autowired
-    public WebSecurityConfig(UserServiceImpl userService) {
+    public WebSecurityConfig(UserService userService) {
         this.userService = userService;
     }
 
@@ -26,6 +26,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
             .authorizeRequests()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/main/**").authenticated()
             .and()
                 .formLogin().loginPage("/").loginProcessingUrl("/perform-login").successForwardUrl("/main")
